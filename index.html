@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NOURI — UI Kit</title>
 <link rel="stylesheet" href="./colors_and_type.css">
 <style>
@@ -48,6 +49,25 @@
     background: #7B39D2; color: #fff;
   }
   .device-wrap { position: relative; }
+
+  @media (max-width: 520px) {
+    html, body { height: 100%; overflow: hidden; }
+    .stage {
+      padding: 0;
+      gap: 0;
+      height: 100dvh;
+      justify-content: flex-start;
+      overflow: hidden;
+    }
+    .header, .switch { display: none; }
+    .mobile-screen {
+      width: 100%;
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: #FBF7F1;
+    }
+  }
 </style>
 </head>
 <body>
@@ -80,6 +100,7 @@
     function App() {
       const [screen, setScreen] = useState(() => localStorage.getItem('nouri.screen') || 'home');
       const go = (s) => { setScreen(s); localStorage.setItem('nouri.screen', s); };
+      const isMobile = window.innerWidth <= 520;
 
       const body = {
         home: <HomeScreen onOpenCheckIn={() => go('checkin')} onOpenArticle={() => go('learn')} onOpenLabs={() => go('labs')}/>,
@@ -90,12 +111,30 @@
         labs: <LabsScreen onClose={() => go('home')}/>,
       }[screen];
 
+      const nav = screen !== 'checkin' && screen !== 'labs' && <TabBar active={screen} onChange={go}/>;
+
       return (
         <React.Fragment>
           <div className="header">
             <div className="eb">NOURI · UI Kit</div>
             <h1>Información, registro, <em style={{color:'#D6C7FD'}}>comunidad</em>.</h1>
             <p>Recreación de la app móvil para el sistema de diseño. Navega entre pantallas con la barra inferior o las pestañas de abajo.</p>
+            <a
+              href="https://docs.google.com/forms/d/e/1FAIpQLScuRn15sjNEYJEhRt14Nrf2aFE6-kxikF5Eh6uFO2YUgYFI3g/viewform"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                marginTop: 20,
+                fontFamily: "'Geist', -apple-system, system-ui, sans-serif",
+                fontWeight: 500, fontSize: 15,
+                padding: '12px 22px', borderRadius: 999,
+                border: '1px solid #E3DCCC',
+                background: '#FBF7F1', color: '#1E1D2B',
+                display: 'inline-flex', alignItems: 'center',
+                textDecoration: 'none',
+                transition: 'all 140ms cubic-bezier(.22,.61,.36,1)',
+              }}
+            >Comienza gratis</a>
           </div>
 
           <div className="switch">
@@ -104,12 +143,19 @@
             ))}
           </div>
 
-          <div className="device-wrap">
-            <IOSDevice width={390} height={820} dark={false}>
+          {isMobile ? (
+            <div className="mobile-screen">
               {body}
-              {screen !== 'checkin' && screen !== 'labs' && <TabBar active={screen} onChange={go}/>}
-            </IOSDevice>
-          </div>
+              {nav}
+            </div>
+          ) : (
+            <div className="device-wrap">
+              <IOSDevice width={390} height={820} dark={false}>
+                {body}
+                {nav}
+              </IOSDevice>
+            </div>
+          )}
         </React.Fragment>
       );
     }
